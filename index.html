@@ -1,0 +1,1500 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>タワーヒーローRPG - 数字パズルバトル</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=M+PLUS+Rounded+1p:wght@500;700;900&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'M PLUS Rounded 1p', sans-serif;
+            user-select: none;
+            touch-action: manipulation;
+        }
+        @keyframes float {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-5px); }
+        }
+        .animate-float {
+            animation: float 2s ease-in-out infinite;
+        }
+        .tower-block {
+            box-shadow: inset 0 0 15px rgba(0,0,0,0.5), 0 4px 6px rgba(0,0,0,0.4);
+            transition: all 0.2s ease;
+        }
+        .tower-block:hover {
+            filter: brightness(1.15);
+        }
+        @keyframes twinkle {
+            0%, 100% { opacity: 0.2; transform: scale(0.8); }
+            50% { opacity: 1; transform: scale(1.3); }
+        }
+        .star-twinkle {
+            animation: twinkle 2.5s infinite ease-in-out;
+        }
+        @keyframes shoot {
+            0% { transform: translateX(0) translateY(0); opacity: 1; }
+            100% { transform: translateX(-400px) translateY(300px); opacity: 0; }
+        }
+        .shooting-star {
+            animation: shoot 2s infinite linear;
+        }
+        @keyframes gachaSpin {
+            0% { transform: rotate(0deg) scale(1); }
+            50% { transform: rotate(180deg) scale(1.2); }
+            100% { transform: rotate(360deg) scale(1); }
+        }
+        .gacha-anim {
+            animation: gachaSpin 0.6s ease-in-out;
+        }
+        @keyframes pulseGlow {
+            0%, 100% { box-shadow: 0 0 15px rgba(236,72,153,0.4); }
+            50% { box-shadow: 0 0 35px rgba(236,72,153,0.9); }
+        }
+        .fnf-receptor {
+            animation: pulseGlow 2s infinite ease-in-out;
+        }
+        @keyframes cyberPulse {
+            0%, 100% { opacity: 0.3; transform: scale(1); }
+            50% { opacity: 0.7; transform: scale(1.05); }
+        }
+        .cyber-bg-glow {
+            animation: cyberPulse 1.5s infinite ease-in-out;
+        }
+
+        /* Fireworks & Confetti Animations for Victory Clear Effect */
+        @keyframes confettiFall {
+            0% { transform: translateY(-20px) rotate(0deg); opacity: 1; }
+            100% { transform: translateY(350px) rotate(720deg); opacity: 0; }
+        }
+        .confetti-piece {
+            position: absolute;
+            width: 10px;
+            height: 14px;
+            pointer-events: none;
+            z-index: 100;
+            animation: confettiFall 2.5s ease-out forwards;
+        }
+
+        @keyframes fireworkBurst {
+            0% { transform: scale(0); opacity: 1; }
+            50% { transform: scale(1.5); opacity: 0.8; }
+            100% { transform: scale(2.2); opacity: 0; }
+        }
+        .firework-effect {
+            position: absolute;
+            width: 120px;
+            height: 120px;
+            border-radius: 50%;
+            pointer-events: none;
+            z-index: 90;
+            animation: fireworkBurst 1.2s ease-out forwards;
+        }
+    </style>
+</head>
+<body class="bg-gradient-to-b from-slate-950 via-indigo-950 to-slate-900 min-h-screen text-white flex flex-col items-center justify-between p-2 sm:p-4 overflow-x-hidden relative">
+
+    <!-- Background Decoration -->
+    <div class="absolute inset-0 overflow-hidden pointer-events-none z-0">
+        <!-- Crescent Moon with Rhythm game trigger -->
+        <div class="absolute top-6 right-12 w-32 h-32 pointer-events-auto z-30">
+            <button onclick="openRhythmGame()" class="absolute inset-0 rounded-full bg-gradient-to-tr from-amber-100 via-yellow-100 to-white shadow-[0_0_70px_rgba(254,243,199,0.9)] flex flex-col items-center justify-center border-2 border-pink-400 overflow-hidden cursor-pointer hover:scale-110 active:scale-95 transition group">
+                <div class="absolute top-0 right-0 w-28 h-28 rounded-full bg-slate-950 translate-x-4 -translate-y-2 opacity-95 pointer-events-none"></div>
+                <div class="absolute top-8 left-6 w-2 h-2 rounded-full bg-amber-200/40 pointer-events-none"></div>
+                <div class="absolute bottom-6 left-10 w-3 h-3 rounded-full bg-amber-200/30 pointer-events-none"></div>
+                <div class="z-40 text-3xl drop-shadow-[0_0_10px_rgba(236,72,153,0.9)] group-hover:rotate-12 transition">🎤</div>
+            </button>
+        </div>
+
+        <!-- Starry Sky Dots & Multiple Shooting Stars -->
+        <div class="absolute top-10 left-12 w-1.5 h-1.5 bg-white rounded-full star-twinkle" style="animation-delay: 0.1s;"></div>
+        <div class="absolute top-20 left-1/4 w-2 h-2 bg-yellow-200 rounded-full star-twinkle" style="animation-delay: 1.2s;"></div>
+        <div class="absolute top-14 left-2/3 w-1.5 h-1.5 bg-white rounded-full star-twinkle" style="animation-delay: 0.5s;"></div>
+        <div class="absolute top-28 right-1/4 w-2 h-2 bg-cyan-100 rounded-full star-twinkle" style="animation-delay: 1.8s;"></div>
+        <div class="absolute top-8 left-1/3 w-1.5 h-1.5 bg-white rounded-full star-twinkle" style="animation-delay: 2.1s;"></div>
+        <div class="absolute top-24 right-1/3 w-2 h-2 bg-amber-200 rounded-full star-twinkle" style="animation-delay: 0.4s;"></div>
+        <div class="absolute top-36 left-16 w-1.5 h-1.5 bg-white rounded-full star-twinkle" style="animation-delay: 1.4s;"></div>
+        <div class="absolute top-6 left-1/2 w-2 h-2 bg-blue-200 rounded-full star-twinkle" style="animation-delay: 0.8s;"></div>
+
+        <div class="absolute top-10 right-1/4 w-32 h-0.5 bg-gradient-to-r from-transparent via-white to-cyan-300 rotate-[-35deg] shooting-star" style="animation-duration: 2.8s; animation-delay: 0s;"></div>
+        <div class="absolute top-28 right-1/2 w-28 h-0.5 bg-gradient-to-r from-transparent via-white to-amber-200 rotate-[-40deg] shooting-star" style="animation-duration: 2.2s; animation-delay: 1.2s;"></div>
+
+        <!-- Clouds & Mountain Silhouettes -->
+        <div class="absolute top-24 left-10 w-48 h-14 bg-indigo-950/40 rounded-full blur-md"></div>
+        <div class="absolute top-40 right-1/3 w-64 h-20 bg-indigo-950/35 rounded-full blur-lg"></div>
+
+        <div class="absolute bottom-0 left-0 right-0 h-64 flex items-end justify-between opacity-40">
+            <svg class="w-1/2 h-full text-indigo-950 fill-current" viewBox="0 0 500 200" preserveAspectRatio="none">
+                <polygon points="0,200 130,70 280,200" />
+                <polygon points="100,200 260,30 450,200" />
+            </svg>
+            <svg class="w-1/2 h-full text-indigo-950 fill-current" viewBox="0 0 500 200" preserveAspectRatio="none">
+                <polygon points="50,200 180,50 350,200" />
+                <rect x="180" y="70" width="40" height="130"/>
+                <polygon points="170,70 200,25 230,70"/>
+            </svg>
+        </div>
+    </div>
+
+    <!-- Home Screen -->
+    <div id="home-screen" class="w-full max-w-4xl flex-1 flex flex-col items-center justify-center z-20 gap-8 py-8 relative">
+        <button onclick="getSecretCoins()" title="カブトムシを発見した！" class="absolute top-4 left-4 text-2xl hover:scale-125 transition cursor-pointer animate-bounce bg-emerald-950/50 p-2 rounded-full border border-emerald-500/40">
+            🪲
+        </button>
+
+        <div class="text-center flex flex-col items-center gap-2">
+            <span class="text-xs sm:text-sm font-bold bg-cyan-500/20 text-cyan-300 px-4 py-1 rounded-full border border-cyan-500/30">数字パズルアクションRPG</span>
+            <h1 class="text-4xl sm:text-6xl font-black tracking-wider text-transparent bg-clip-text bg-gradient-to-r from-cyan-400 via-indigo-200 to-purple-400 drop-shadow-lg">タワーヒーローRPG</h1>
+            <p class="text-slate-400 text-sm sm:text-base mt-1">塔をのぼり、強敵を倒し、最強のヒーローを目指そう！</p>
+        </div>
+
+        <div class="flex items-center gap-4 bg-slate-900/90 border border-slate-700/80 px-6 py-3 rounded-2xl shadow-xl flex-wrap justify-center">
+            <div class="flex items-center gap-2 font-bold text-amber-400 text-lg">
+                <span>🪙</span> <span id="home-coins">100</span> コイン
+            </div>
+            <div class="h-6 w-px bg-slate-700 hidden sm:block"></div>
+            <div class="flex items-center gap-2 text-sm text-slate-300">
+                <span>現在のスキン:</span> <span id="home-current-skin" class="font-black text-cyan-400">ノーマルヒーロー</span>
+            </div>
+            <button onclick="openSkinSelectModal()" class="bg-cyan-600 hover:bg-cyan-500 active:scale-95 text-xs font-bold px-3 py-1.5 rounded-xl transition border border-cyan-400 shadow text-white">
+                👕 スキン変更
+            </button>
+        </div>
+
+        <div class="flex flex-col sm:flex-row gap-4 w-full max-w-md justify-center">
+            <button onclick="startGame()" class="w-full bg-gradient-to-r from-cyan-500 to-blue-600 hover:from-cyan-400 hover:to-blue-500 text-white font-black py-4 px-8 rounded-2xl shadow-xl border border-cyan-400/50 transition active:scale-95 text-lg flex items-center justify-center gap-2">
+                ⚔️ ゲームスタート
+            </button>
+        </div>
+        <div class="flex flex-row gap-3 w-full max-w-md justify-center">
+            <button onclick="openGachaModal()" class="flex-1 bg-purple-600 hover:bg-purple-500 text-white font-bold py-3 px-6 rounded-2xl shadow-lg border border-purple-400/50 transition active:scale-95 flex items-center justify-center gap-2">
+                🎁 スキンガチャ <span class="text-xs bg-purple-900/80 px-2 py-0.5 rounded-full">50C</span>
+            </button>
+            <button onclick="openAchievementModal()" class="flex-1 bg-amber-600 hover:bg-amber-500 text-white font-bold py-3 px-6 rounded-2xl shadow-lg border border-amber-400/50 transition active:scale-95 flex items-center justify-center gap-2">
+                🏆 実績
+            </button>
+        </div>
+    </div>
+
+    <!-- Main Game Screen -->
+    <div id="game-screen" class="w-full max-w-5xl flex-1 flex flex-col items-center justify-between z-20 hidden">
+        <header class="w-full flex items-center justify-between bg-slate-900/90 backdrop-blur-md border border-slate-700/80 p-3 sm:p-4 rounded-2xl shadow-xl z-25">
+            <div class="flex items-center gap-3">
+                <button onclick="returnToHome()" class="bg-slate-800 hover:bg-slate-700 active:scale-95 text-xs sm:text-sm font-bold px-3 py-2 rounded-xl transition border border-slate-600 flex items-center gap-1 shadow">
+                    🏠 ホーム
+                </button>
+                <span class="bg-gradient-to-r from-cyan-500 to-blue-600 text-white font-black px-4 py-1.5 rounded-xl text-lg sm:text-xl shadow-lg border border-cyan-400/40" id="stage-title">ステージ 1</span>
+            </div>
+            <div class="flex items-center gap-3">
+                <div class="flex items-center gap-1 text-amber-400 font-bold text-sm bg-slate-800/80 px-3 py-1.5 rounded-xl border border-slate-700">
+                    🪙 <span id="game-coins">0</span>
+                </div>
+                <button onclick="resetGame()" class="bg-slate-800 hover:bg-slate-700 active:scale-95 text-xs sm:text-sm font-bold px-3 py-2 rounded-xl transition border border-slate-600 flex items-center gap-1 shadow">
+                    🔄 リトライ
+                </button>
+                <button onclick="openStageSelect()" class="bg-indigo-600 hover:bg-indigo-500 active:scale-95 text-xs sm:text-sm font-bold px-3 py-2 rounded-xl transition border border-indigo-400 shadow">
+                    🗺️ ステージ選択
+                </button>
+            </div>
+        </header>
+
+        <main class="w-full flex-1 flex flex-col items-center justify-center my-4 relative">
+            <div id="toast" class="absolute top-2 z-50 bg-slate-900/95 border-2 border-cyan-500 text-white px-6 py-2.5 rounded-2xl shadow-2xl transition-all duration-300 transform -translate-y-16 opacity-0 pointer-events-none font-bold text-sm sm:text-base">
+                通知メッセージ
+            </div>
+
+            <div class="w-full flex flex-wrap items-end justify-center gap-4 sm:gap-8 z-10 py-4" id="towers-wrapper"></div>
+        </main>
+
+        <footer class="w-full bg-slate-900/90 border border-slate-800 p-3 sm:p-4 rounded-2xl flex flex-col sm:flex-row items-center justify-between text-xs sm:text-sm text-slate-400 gap-2 shadow-lg z-25">
+            <div class="flex items-center gap-2">
+                <span class="inline-block w-3 h-3 rounded-full bg-cyan-400 animate-pulse"></span>
+                <span>ルール: 主人公より小さい敵を倒すか、武器やアイテムを拾って自分の数字を大きくして進もう！</span>
+            </div>
+            <div class="flex items-center gap-3">
+                <span class="text-slate-300">💡 敵を倒すとコインを獲得できます！</span>
+            </div>
+        </footer>
+    </div>
+
+    <!-- Gacha Modal -->
+    <div id="gacha-modal" class="fixed inset-0 bg-black/85 backdrop-blur-md z-50 flex items-center justify-center p-4 hidden">
+        <div class="bg-slate-900 border border-purple-500/50 w-full max-w-md rounded-3xl p-6 shadow-2xl flex flex-col gap-6 text-center">
+            <div class="flex justify-between items-center">
+                <h3 class="text-xl font-bold text-purple-400">🎁 スキンガチャ</h3>
+                <div class="text-amber-400 font-bold text-sm">🪙 <span id="gacha-modal-coins">0</span> コイン</div>
+            </div>
+            <div id="gacha-display-box" class="bg-slate-950 border border-slate-800 rounded-2xl p-6 flex flex-col items-center justify-center gap-3 min-h-[160px]">
+                <div class="text-4xl">🎁</div>
+                <p id="gacha-result-text" class="text-sm text-slate-300">50コインでレアなスキンを当てよう！<br><span class="text-xs text-purple-400">忍者、侍、勇者、魔法使い、そして神降臨...!?</span></p>
+            </div>
+            <div class="flex gap-3">
+                <button onclick="spinGacha()" class="flex-1 bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-500 hover:to-indigo-500 text-white font-bold py-3.5 rounded-2xl shadow-lg transition active:scale-95 border border-purple-400/40">1回引く (50 🪙)</button>
+                <button onclick="closeGachaModal()" class="bg-slate-800 hover:bg-slate-700 font-bold py-3.5 px-6 rounded-2xl transition border border-slate-600">閉じる</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Skin Selection Modal -->
+    <div id="skin-select-modal" class="fixed inset-0 bg-black/85 backdrop-blur-md z-50 flex items-center justify-center p-4 hidden">
+        <div class="bg-slate-900 border border-cyan-500/50 w-full max-w-md rounded-3xl p-6 shadow-2xl flex flex-col gap-4">
+            <div class="flex justify-between items-center">
+                <h3 class="text-xl font-bold text-cyan-400">👕 スキン選択</h3>
+                <button onclick="closeSkinSelectModal()" class="text-slate-400 hover:text-white font-bold">✕</button>
+            </div>
+            <div id="skin-list" class="grid grid-cols-2 gap-3 max-h-72 overflow-y-auto p-1"></div>
+            <button onclick="closeSkinSelectModal()" class="w-full bg-slate-800 hover:bg-slate-700 font-bold py-3 rounded-xl transition border border-slate-600">閉じる</button>
+        </div>
+    </div>
+
+    <!-- Rhythm Game Modal -->
+    <div id="rhythm-modal" class="fixed inset-0 bg-black/95 backdrop-blur-md z-50 flex items-center justify-center p-2 sm:p-4 hidden">
+        <div class="bg-slate-950 border-2 border-pink-400 w-full max-w-4xl rounded-3xl p-4 sm:p-6 shadow-[0_0_80px_rgba(236,72,153,0.5)] flex flex-col items-center gap-3 relative overflow-hidden">
+            <div class="absolute inset-0 bg-gradient-to-tr from-cyan-950/30 via-purple-950/20 to-pink-950/30 cyber-bg-glow pointer-events-none"></div>
+            <div class="absolute top-0 left-0 right-0 h-2 bg-gradient-to-r from-cyan-400 via-fuchsia-500 to-pink-500 animate-pulse"></div>
+            
+            <div class="flex justify-between items-center w-full z-10 bg-slate-900/80 p-3 rounded-2xl border border-pink-500/40">
+                <div class="flex items-center gap-3">
+                    <span class="bg-pink-600 text-white font-black px-3 py-1 rounded-xl text-xs sm:text-sm animate-pulse shadow-[0_0_15px_rgba(236,72,153,0.8)]">リズムステージ</span>
+                    <span class="text-amber-400 font-black text-sm sm:text-base" id="fnf-score">スコア: 0</span>
+                </div>
+                <div class="flex items-center gap-4">
+                    <div class="flex flex-col items-end">
+                        <span class="text-[10px] text-slate-300 font-bold">クリア条件: 9,000点以上</span>
+                        <div class="w-32 sm:w-40 bg-slate-950 h-3.5 rounded-full border border-pink-500/50 overflow-hidden shadow-inner flex items-center">
+                            <div id="fnf-health-bar" class="h-full bg-gradient-to-r from-cyan-400 via-purple-500 to-pink-500 w-1/2 transition-all duration-150"></div>
+                        </div>
+                    </div>
+                    <button onclick="closeRhythmGame()" class="text-slate-300 hover:text-white font-bold px-3 py-1.5 bg-slate-800 rounded-xl border border-slate-600 text-xs">✕ 閉じる</button>
+                </div>
+            </div>
+
+            <!-- Rhythm Stage Arena Container -->
+            <div class="w-full h-64 sm:h-80 bg-gradient-to-b from-stone-900 via-zinc-900 to-slate-950 rounded-2xl border-2 border-stone-700 relative flex items-center justify-center px-2 sm:px-8 overflow-hidden shadow-2xl">
+                <!-- Center Character Dancing -->
+                <div class="flex flex-col items-center justify-end z-20 h-full pb-4">
+                    <div class="relative flex flex-col items-center">
+                        <div class="absolute -top-16 flex flex-col items-center animate-bounce">
+                            <svg class="w-20 h-20 drop-shadow-[0_0_12px_rgba(236,72,153,0.9)]" viewBox="0 0 100 100">
+                                <circle cx="50" cy="25" r="9" fill="#fde047" stroke="#ca8a04" stroke-width="2"/>
+                                <path d="M43 19 Q50 13 57 19" fill="none" stroke="#475569" stroke-width="3" stroke-linecap="round"/>
+                                <line x1="50" y1="34" x2="50" y2="60" stroke="#f8fafc" stroke-width="6" stroke-linecap="round"/>
+                                <line x1="50" y1="42" x2="28" y2="30" stroke="#f8fafc" stroke-width="4" stroke-linecap="round"/>
+                                <line x1="50" y1="42" x2="72" y2="30" stroke="#f8fafc" stroke-width="4" stroke-linecap="round"/>
+                                <line x1="50" y1="60" x2="32" y2="82" stroke="#0f172a" stroke-width="5" stroke-linecap="round"/>
+                                <line x1="50" y1="60" x2="68" y2="84" stroke="#0f172a" stroke-width="5" stroke-linecap="round"/>
+                            </svg>
+                            <span class="bg-pink-600 text-white font-black text-[10px] px-2 py-0.5 rounded-full shadow-lg border border-pink-400 whitespace-nowrap">やりらふぃー</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Scrolling Receptors & Notes Overlay -->
+                <div class="absolute inset-0 flex justify-center items-center pointer-events-none">
+                    <div class="absolute top-4 w-full flex justify-center gap-3 sm:gap-4 z-20 pointer-events-auto">
+                        <div id="receptor-0" class="fnf-receptor w-10 h-10 sm:w-12 sm:h-12 rounded-xl bg-cyan-950/90 border-2 border-cyan-400 flex items-center justify-center text-cyan-300 font-bold text-lg shadow-[0_0_10px_rgba(6,182,212,0.8)]">⬅️</div>
+                        <div id="receptor-1" class="fnf-receptor w-10 h-10 sm:w-12 sm:h-12 rounded-xl bg-purple-950/90 border-2 border-purple-400 flex items-center justify-center text-purple-300 font-bold text-lg shadow-[0_0_10px_rgba(168,85,247,0.8)]">⬆️</div>
+                        <div id="receptor-2" class="fnf-receptor w-10 h-10 sm:w-12 sm:h-12 rounded-xl bg-pink-950/90 border-2 border-pink-400 flex items-center justify-center text-pink-300 font-bold text-lg shadow-[0_0_10px_rgba(236,72,153,0.8)]">⬇️</div>
+                        <div id="receptor-3" class="fnf-receptor w-10 h-10 sm:w-12 sm:h-12 rounded-xl bg-amber-950/90 border-2 border-amber-400 flex items-center justify-center text-amber-300 font-bold text-lg shadow-[0_0_10px_rgba(251,191,36,0.8)]">➡️</div>
+                    </div>
+
+                    <div id="fnf-feedback" class="absolute font-black text-2xl italic tracking-wider drop-shadow-[0_0_15px_rgba(255,255,255,0.8)] opacity-0 transition-opacity duration-75 z-30">
+                        SICK!
+                    </div>
+
+                    <div class="absolute inset-0 w-48 sm:w-56 bg-black/60 border-x border-pink-500/40 flex justify-around overflow-visible shadow-inner pointer-events-none z-10">
+                        <div class="w-px h-full bg-cyan-500/20"></div>
+                        <div class="w-px h-full bg-cyan-500/20"></div>
+                        <div class="w-px h-full bg-cyan-500/20"></div>
+                        <div class="w-px h-full bg-cyan-500/20"></div>
+                    </div>
+
+                    <div id="fnf-notes-container" class="absolute inset-0 w-48 sm:w-56 pointer-events-none overflow-visible z-20"></div>
+                </div>
+            </div>
+
+            <!-- Mobile Touch Controls -->
+            <div class="grid grid-cols-4 gap-3 w-full max-w-md">
+                <button ontouchstart="handleFNFTap(0)" onmousedown="handleFNFTap(0)" class="bg-slate-900 hover:bg-cyan-900/50 active:bg-cyan-600 border-2 border-cyan-400 p-3 rounded-2xl font-bold text-lg shadow-lg text-cyan-300 transition">⬅️</button>
+                <button ontouchstart="handleFNFTap(1)" onmousedown="handleFNFTap(1)" class="bg-slate-900 hover:bg-purple-900/50 active:bg-purple-600 border-2 border-purple-400 p-3 rounded-2xl font-bold text-lg shadow-lg text-purple-300 transition">⬆️</button>
+                <button ontouchstart="handleFNFTap(2)" onmousedown="handleFNFTap(2)" class="bg-slate-900 hover:bg-pink-900/50 active:bg-pink-600 border-2 border-pink-400 p-3 rounded-2xl font-bold text-lg shadow-lg text-pink-300 transition">⬇️</button>
+                <button ontouchstart="handleFNFTap(3)" onmousedown="handleFNFTap(3)" class="bg-slate-900 hover:bg-amber-900/50 active:bg-amber-600 border-2 border-amber-400 p-3 rounded-2xl font-bold text-lg shadow-lg text-amber-300 transition">➡️</button>
+            </div>
+            <p class="text-xs text-pink-300 text-center font-bold bg-slate-900/90 px-4 py-1.5 rounded-xl border border-pink-500/30">🎵 キーボードの [←][↑][↓][→] または [A][W][S][D] キー、または画面下のボタンでノーツをタップ！ (9,000点以上でクリア)</p>
+        </div>
+    </div>
+
+    <!-- Victory Modal for Rhythm Game -->
+    <div id="rhythm-result-modal" class="fixed inset-0 bg-black/90 backdrop-blur-md z-60 flex items-center justify-center p-4 hidden relative overflow-hidden">
+        <!-- Confetti & Fireworks Container -->
+        <div id="victory-effects-container" class="absolute inset-0 pointer-events-none z-50 overflow-hidden"></div>
+
+        <div class="bg-slate-900 border-2 border-pink-400 w-full max-w-md rounded-3xl p-8 shadow-[0_0_60px_rgba(236,72,153,0.5)] flex flex-col items-center gap-6 text-center relative z-10">
+            <div class="text-6xl animate-bounce" id="fnf-result-emoji">🏆</div>
+            <div>
+                <h2 class="text-2xl sm:text-3xl font-black text-transparent bg-clip-text bg-gradient-to-r from-cyan-400 via-pink-400 to-yellow-300 animate-pulse" id="fnf-result-title">クリア！</h2>
+                <p class="text-slate-300 text-sm mt-2" id="fnf-result-desc">リズムステージに勝利しました！</p>
+            </div>
+            <button onclick="closeRhythmGame()" class="w-full bg-gradient-to-r from-pink-500 via-purple-600 to-cyan-500 hover:from-pink-400 hover:to-cyan-400 text-white font-bold py-3.5 px-8 rounded-2xl shadow-lg transition active:scale-95 border border-pink-300/40">ホームに戻る</button>
+        </div>
+    </div>
+
+    <!-- Achievement Modal -->
+    <div id="achievement-modal" class="fixed inset-0 bg-black/85 backdrop-blur-md z-50 flex items-center justify-center p-4 hidden">
+        <div class="bg-slate-900 border border-amber-500/50 w-full max-w-md rounded-3xl p-6 shadow-2xl flex flex-col gap-4">
+            <div class="flex justify-between items-center">
+                <h3 class="text-xl font-bold text-amber-400">🏆 実績リスト</h3>
+                <button onclick="closeAchievementModal()" class="text-slate-400 hover:text-white font-bold">✕</button>
+            </div>
+            <div id="achievement-list" class="flex flex-col gap-3 max-h-72 overflow-y-auto p-1"></div>
+            <button onclick="closeAchievementModal()" class="w-full bg-slate-800 hover:bg-slate-700 font-bold py-3 rounded-xl transition border border-slate-600">閉じる</button>
+        </div>
+    </div>
+
+    <!-- Stage Select Modal -->
+    <div id="stage-modal" class="fixed inset-0 bg-black/85 backdrop-blur-md z-50 flex items-center justify-center p-4 hidden">
+        <div class="bg-slate-900 border border-slate-700 w-full max-w-md rounded-3xl p-6 shadow-2xl flex flex-col gap-4">
+            <h3 class="text-xl font-bold text-center text-cyan-400">ステージ選択</h3>
+            <div id="stage-list" class="grid grid-cols-3 gap-3 max-h-64 overflow-y-auto p-2"></div>
+            <button onclick="closeStageSelect()" class="w-full bg-slate-800 hover:bg-slate-700 font-bold py-3 rounded-xl transition border border-slate-600">閉じる</button>
+        </div>
+    </div>
+
+    <!-- Stage Clear Modal -->
+    <div id="clear-modal" class="fixed inset-0 bg-black/90 backdrop-blur-md z-50 flex items-center justify-center p-4 hidden">
+        <div class="bg-slate-900 border border-cyan-500/50 w-full max-w-md rounded-3xl p-8 shadow-2xl flex flex-col items-center gap-6 text-center">
+            <div class="text-5xl animate-bounce">🎉</div>
+            <div>
+                <h2 class="text-2xl sm:text-3xl font-black text-transparent bg-clip-text bg-gradient-to-r from-cyan-400 to-indigo-400">ステージクリア！</h2>
+                <p class="text-slate-300 text-sm mt-2">すべての敵を討伐し、塔を制覇しました！ +30コイン獲得！</p>
+            </div>
+            <div class="flex gap-3 w-full">
+                <button onclick="nextStage()" class="flex-1 bg-gradient-to-r from-cyan-500 to-blue-600 hover:from-cyan-400 hover:to-blue-500 text-white font-bold py-3 px-6 rounded-2xl shadow-lg transition active:scale-95">次のステージ ➡️</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Game Over Modal -->
+    <div id="gameover-modal" class="fixed inset-0 bg-black/90 backdrop-blur-md z-50 flex items-center justify-center p-4 hidden">
+        <div class="bg-slate-900 border border-rose-500/50 w-full max-w-md rounded-3xl p-8 shadow-2xl flex flex-col items-center gap-6 text-center">
+            <div class="text-5xl animate-bounce">💀</div>
+            <div>
+                <h2 class="text-2xl sm:text-3xl font-black text-transparent bg-clip-text bg-gradient-to-r from-rose-400 to-amber-400">ゲームオーバー</h2>
+                <p class="text-slate-300 text-sm mt-2">相手の数字の方が大きいため、敗北してしまいました…</p>
+            </div>
+            <div class="flex gap-3 w-full">
+                <button onclick="restartFromBeginning()" class="flex-1 bg-gradient-to-r from-rose-600 to-amber-600 hover:from-rose-500 hover:to-amber-500 text-white font-bold py-3 px-6 rounded-2xl shadow-lg transition active:scale-95">もういっかいさいしょから 🔄</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- JavaScript Logic -->
+    <script>
+        let userData = {
+            coins: 100,
+            currentSkin: 'normal',
+            unlockedSkins: ['normal'],
+            achievements: {
+                firstWin: false,
+                stage5: false,
+                gachaMaster: false,
+                collector: false
+            }
+        };
+
+        let currentStage = 1;
+        let maxStages = 20;
+        let towers = [];
+        let player = {
+            towerIndex: 0,
+            cellIndex: 0,
+            value: 20
+        };
+
+        const skinsData = {
+            normal: { name: 'ノーマルヒーロー', color: '#38bdf8', stroke: '#0284c7', desc: '基本の英雄' },
+            ninja: { name: '忍者', color: '#334155', stroke: '#0f172a', desc: '素早い暗殺者スタイル' },
+            samurai: { name: '侍', color: '#dc2626', stroke: '#991b1b', desc: '誇り高き武士スタイル' },
+            hero: { name: '勇者', color: '#facc15', stroke: '#ca8a04', desc: '伝説の輝く勇者' },
+            mage: { name: '魔法使い', color: '#a855f7', stroke: '#7e22ce', desc: '神秘的な魔導士' },
+            god: { name: '神', color: '#ffffff', stroke: '#e2e8f0', desc: '全知全能の神' }
+        };
+
+        const achievementsData = [
+            { id: 'firstWin', title: '初陣の勝利', desc: 'はじめての敵を倒す', reward: 50 },
+            { id: 'stage5', title: '塔の征服者', desc: 'ステージ5をクリアする', reward: 100 },
+            { id: 'gachaMaster', title: 'ガチャ愛好家', desc: 'スキンガチャを3回まわす', reward: 80 },
+            { id: 'collector', title: '神の祝福', desc: 'シークレットスキン「神」を入手する', reward: 300 }
+        ];
+
+        /* ==========================================================
+           Rhythm Engine with Web Audio Synthesizer
+           ========================================================== */
+        let fnfActive = false;
+        let fnfScore = 0;
+        let fnfHealth = 70;
+        let fnfNotes = [];
+        let fnfSongTime = 0;
+        let fnfInterval = null;
+        let fnfAudioCtx = null;
+        let fnfNextNoteSpawnTime = 0;
+        let fnfSongTotalNotes = 22;
+        let fnfSpawnedCount = 0;
+
+        const cyberBassNotes = [110.00, 123.47, 146.83, 164.81, 196.00, 220.00];
+        const cyberLeadNotes = [440.00, 523.25, 659.25, 783.99, 880.00, 1046.50];
+
+        function initAudioContext() {
+            if (!fnfAudioCtx) {
+                fnfAudioCtx = new (window.AudioContext || window.webkitAudioContext)();
+            }
+            if (fnfAudioCtx.state === 'suspended') {
+                fnfAudioCtx.resume();
+            }
+        }
+
+        function playCyberSynth(freq, type = 'sawtooth', duration = 0.25, vol = 0.12, filterFreq = 1500) {
+            if (!fnfAudioCtx) return;
+            try {
+                const osc = fnfAudioCtx.createOscillator();
+                const filter = fnfAudioCtx.createBiquadFilter();
+                const gain = fnfAudioCtx.createGain();
+
+                osc.type = type;
+                osc.frequency.setValueAtTime(freq, fnfAudioCtx.currentTime);
+
+                filter.type = 'lowpass';
+                filter.frequency.setValueAtTime(filterFreq, fnfAudioCtx.currentTime);
+                filter.Q.setValueAtTime(4, fnfAudioCtx.currentTime);
+
+                gain.gain.setValueAtTime(vol, fnfAudioCtx.currentTime);
+                gain.gain.exponentialRampToValueAtTime(0.0001, fnfAudioCtx.currentTime + duration);
+
+                osc.connect(filter);
+                filter.connect(gain);
+                gain.connect(fnfAudioCtx.destination);
+
+                osc.start();
+                osc.stop(fnfAudioCtx.currentTime + duration);
+            } catch(e) {}
+        }
+
+        function openRhythmGame() {
+            initAudioContext();
+            document.getElementById('rhythm-modal').classList.remove('hidden');
+            document.getElementById('rhythm-result-modal').classList.add('hidden');
+            fnfActive = true;
+            fnfScore = 0;
+            fnfHealth = 70;
+            fnfNotes = [];
+            fnfSongTime = 0;
+            fnfSpawnedCount = 0;
+            updateFNFUI();
+
+            if (fnfInterval) clearInterval(fnfInterval);
+            
+            let beatStep = 0;
+            fnfInterval = setInterval(() => {
+                if (!fnfActive) return;
+                fnfSongTime += 50;
+
+                if (beatStep % 2 === 0) {
+                    let bFreq = cyberBassNotes[(beatStep / 2) % cyberBassNotes.length];
+                    playCyberSynth(bFreq, 'sawtooth', 0.18, 0.1, 1200);
+                }
+                if (beatStep % 4 === 0) {
+                    let lFreq = cyberLeadNotes[(beatStep / 4) % cyberLeadNotes.length];
+                    playCyberSynth(lFreq, 'square', 0.12, 0.06, 3000);
+                }
+
+                if (fnfSpawnedCount < fnfSongTotalNotes && fnfSongTime >= fnfNextNoteSpawnTime) {
+                    let lane = Math.floor(Math.random() * 4);
+                    fnfNotes.push({
+                        id: Math.random(),
+                        lane: lane,
+                        y: 0,
+                        speed: 1.6
+                    });
+                    fnfSpawnedCount++;
+                    fnfNextNoteSpawnTime = fnfSongTime + 550 + Math.random() * 150;
+                }
+
+                let container = document.getElementById('fnf-notes-container');
+                container.innerHTML = '';
+
+                fnfNotes.forEach((note, index) => {
+                    note.y += note.speed;
+                    if (note.y > 105 && !note.hit) {
+                        fnfHealth -= 4;
+                        if (fnfHealth < 0) fnfHealth = 0;
+                        showFNFFeedback("MISS", "#ef4444");
+                        fnfNotes.splice(index, 1);
+                    } else if (!note.hit) {
+                        let el = document.createElement('div');
+                        let colors = [
+                            'bg-cyan-500 border-cyan-200 shadow-[0_0_12px_rgba(6,182,212,0.8)]',
+                            'bg-purple-500 border-purple-200 shadow-[0_0_12px_rgba(168,85,247,0.8)]',
+                            'bg-pink-500 border-pink-200 shadow-[0_0_12px_rgba(236,72,153,0.8)]',
+                            'bg-amber-500 border-amber-200 shadow-[0_0_12px_rgba(251,191,36,0.8)]'
+                        ];
+                        let symbols = ['⬅️', '⬆️', '⬇️', '➡️'];
+                        let leftPositions = ['6%', '31%', '56%', '81%'];
+                        
+                        el.className = `absolute w-9 h-9 sm:w-11 sm:h-11 rounded-xl border-2 flex items-center justify-center font-black text-sm ${colors[note.lane]}`;
+                        el.style.top = `${note.y}%`;
+                        el.style.left = leftPositions[note.lane];
+                        el.innerHTML = symbols[note.lane];
+                        container.appendChild(el);
+                    }
+                });
+
+                updateFNFUI();
+
+                if (fnfSpawnedCount >= fnfSongTotalNotes && fnfNotes.length === 0) {
+                    evaluateSongResult();
+                }
+                if (fnfHealth <= 0) {
+                    evaluateSongResult();
+                }
+
+                beatStep++;
+            }, 30);
+        }
+
+        function closeRhythmGame() {
+            fnfActive = false;
+            if (fnfInterval) clearInterval(fnfInterval);
+            document.getElementById('rhythm-modal').classList.add('hidden');
+            document.getElementById('rhythm-result-modal').classList.add('hidden');
+        }
+
+        function updateFNFUI() {
+            document.getElementById('fnf-score').innerText = `スコア: ${fnfScore}`;
+            let bar = document.getElementById('fnf-health-bar');
+            bar.style.width = `${fnfHealth}%`;
+        }
+
+        function showFNFFeedback(text, color) {
+            let fb = document.getElementById('fnf-feedback');
+            fb.innerText = text;
+            fb.style.color = color;
+            fb.style.opacity = '1';
+            setTimeout(() => {
+                fb.style.opacity = '0';
+            }, 300);
+        }
+
+        function handleFNFTap(lane) {
+            if (!fnfActive) return;
+
+            let receptor = document.getElementById(`receptor-${lane}`);
+            receptor.classList.add('scale-90', 'brightness-125');
+            setTimeout(() => receptor.classList.remove('scale-90', 'brightness-125'), 100);
+
+            let tapFreqs = [523.25, 659.25, 783.99, 1046.50];
+            playCyberSynth(tapFreqs[lane], 'sine', 0.15, 0.15, 2500);
+
+            let hitIndex = -1;
+            let closestDist = 999;
+
+            fnfNotes.forEach((note, index) => {
+                if (note.lane === lane && !note.hit) {
+                    let dist = Math.abs(note.y - 85);
+                    if (dist < closestDist) {
+                        closestDist = dist;
+                        hitIndex = index;
+                    }
+                }
+            });
+
+            if (hitIndex !== -1 && closestDist < 25) {
+                let note = fnfNotes[hitIndex];
+                note.hit = true;
+                fnfNotes.splice(hitIndex, 1);
+
+                fnfScore += 450;
+                fnfHealth += 10;
+                if (fnfHealth > 100) fnfHealth = 100;
+                showFNFFeedback("SICK!", "#22c55e");
+            } else {
+                fnfScore -= 30;
+                fnfHealth -= 6;
+                if (fnfHealth < 0) fnfHealth = 0;
+                showFNFFeedback("BAD", "#eab308");
+            }
+            updateFNFUI();
+
+            if (fnfHealth <= 0) {
+                evaluateSongResult();
+            }
+        }
+
+        window.addEventListener('keydown', (e) => {
+            if (!fnfActive) return;
+            if (['ArrowLeft', 'a', 'A'].includes(e.key)) { e.preventDefault(); handleFNFTap(0); }
+            else if (['ArrowUp', 'w', 'W'].includes(e.key)) { e.preventDefault(); handleFNFTap(1); }
+            else if (['ArrowDown', 's', 'S'].includes(e.key)) { e.preventDefault(); handleFNFTap(2); }
+            else if (['ArrowRight', 'd', 'D'].includes(e.key)) { e.preventDefault(); handleFNFTap(3); }
+        });
+
+        function evaluateSongResult() {
+            fnfActive = false;
+            if (fnfInterval) clearInterval(fnfInterval);
+
+            // クリア条件: 9,000点以上でクリア
+            let success = (fnfScore >= 9000);
+
+            let titleEl = document.getElementById('fnf-result-title');
+            let descEl = document.getElementById('fnf-result-desc');
+            let emojiEl = document.getElementById('fnf-result-emoji');
+
+            if (success) {
+                emojiEl.innerText = "👑";
+                titleEl.innerText = "🎉 STAGE CLEAR!! 🎉";
+                descEl.innerHTML = `獲得スコア: <b class="text-pink-400 text-lg">${fnfScore}点</b> (9000点以上達成！)<br>見事なダンススキルでやりらふぃー戦クリア成功！<br><span class="text-amber-300 font-bold text-base mt-1 inline-block">🪙 300コイン獲得！</span>`;
+                
+                userData.coins += 300;
+                saveUserData();
+
+                // 勝利演出（紙吹雪＆花火効果＆ファンファーレ効果音）の発動
+                triggerVictoryEffects();
+                playVictoryFanfare();
+            } else {
+                emojiEl.innerText = "💥";
+                titleEl.innerText = "FAILED… 9000スコア未満";
+                descEl.innerHTML = `獲得スコア: <b>${fnfScore}点</b> (クリアには9,000点以上必要)<br>あと少し！リズムに合わせてノーツをタップしよう！`;
+            }
+
+            document.getElementById('rhythm-result-modal').classList.remove('hidden');
+        }
+
+        // クリア勝利演出 (紙吹雪 & 花火エフェクト生成)
+        function triggerVictoryEffects() {
+            const container = document.getElementById('victory-effects-container');
+            container.innerHTML = '';
+
+            const colors = ['#ec4899', '#06b6d4', '#facc15', '#a855f7', '#3b82f6', '#10b981', '#f43f5e'];
+
+            // 紙吹雪を40個生成
+            for (let i = 0; i < 40; i++) {
+                const confetti = document.createElement('div');
+                confetti.className = 'confetti-piece';
+                confetti.style.left = `${Math.random() * 100}%`;
+                confetti.style.top = `${-20 - Math.random() * 50}px`;
+                confetti.style.backgroundColor = colors[Math.floor(Math.random() * colors.length)];
+                confetti.style.animationDelay = `${Math.random() * 1.5}s`;
+                confetti.style.animationDuration = `${2 + Math.random() * 1.5}s`;
+                container.appendChild(confetti);
+            }
+
+            // 花火エフェクトを複数生成
+            for (let i = 0; i < 5; i++) {
+                setTimeout(() => {
+                    const firework = document.createElement('div');
+                    firework.className = 'firework-effect';
+                    firework.style.left = `${15 + Math.random() * 70}%`;
+                    firework.style.top = `${20 + Math.random() * 50}%`;
+                    const color = colors[Math.floor(Math.random() * colors.length)];
+                    firework.style.background = `radial-gradient(circle, ${color} 10%, transparent 70%)`;
+                    firework.style.boxShadow = `0 0 25px ${color}`;
+                    container.appendChild(firework);
+
+                    setTimeout(() => firework.remove(), 1200);
+                }, i * 300);
+            }
+        }
+
+        // クリア時のファンファーレ音（Web Audio API）
+        function playVictoryFanfare() {
+            if (!fnfAudioCtx) return;
+            try {
+                const notes = [523.25, 659.25, 783.99, 1046.50]; // C5, E5, G5, C6
+                notes.forEach((freq, i) => {
+                    setTimeout(() => {
+                        playCyberSynth(freq, 'triangle', 0.4, 0.2, 4000);
+                    }, i * 120);
+                });
+            } catch(e) {}
+        }
+
+        function loadUserData() {
+            const saved = localStorage.getItem('tower_hero_user');
+            if (saved) {
+                try { userData = JSON.parse(saved); } catch(e){}
+            }
+            updateHomeUI();
+        }
+
+        function saveUserData() {
+            localStorage.setItem('tower_hero_user', JSON.stringify(userData));
+            updateHomeUI();
+        }
+
+        function updateHomeUI() {
+            document.getElementById('home-coins').innerText = userData.coins;
+            document.getElementById('gacha-modal-coins').innerText = userData.coins;
+            let currentName = 'ノーマルヒーロー';
+            if (skinsData[userData.currentSkin]) {
+                currentName = skinsData[userData.currentSkin].name;
+            }
+            document.getElementById('home-current-skin').innerText = currentName;
+        }
+
+        function openSkinSelectModal() {
+            const list = document.getElementById('skin-list');
+            list.innerHTML = '';
+            Object.keys(skinsData).forEach(key => {
+                const skin = skinsData[key];
+                const isUnlocked = userData.unlockedSkins.includes(key);
+                const isCurrent = (userData.currentSkin === key);
+
+                const item = document.createElement('div');
+                item.className = `p-3 rounded-2xl border flex flex-col items-center justify-between gap-2 ${isCurrent ? 'bg-cyan-950/40 border-cyan-400' : isUnlocked ? 'bg-slate-800/80 border-slate-700' : 'bg-slate-950/50 border-slate-900 opacity-60'}`;
+                item.innerHTML = `
+                    <div class="font-bold text-sm text-center ${isCurrent ? 'text-cyan-300' : 'text-slate-300'}">${skin.name}</div>
+                    <div class="text-[10px] text-slate-400 text-center">${skin.desc}</div>
+                    <button ${!isUnlocked ? 'disabled' : ''} onclick="selectSkin('${key}')" class="w-full py-1.5 rounded-xl font-bold text-xs transition ${isCurrent ? 'bg-cyan-600 text-white' : isUnlocked ? 'bg-slate-700 hover:bg-slate-600 text-slate-200' : 'bg-slate-900 text-slate-600 cursor-not-allowed'}">
+                        ${isCurrent ? '装着中' : isUnlocked ? '装着する' : '未解放'}
+                    </button>
+                `;
+                list.appendChild(item);
+            });
+            document.getElementById('skin-select-modal').classList.remove('hidden');
+        }
+
+        function closeSkinSelectModal() {
+            document.getElementById('skin-select-modal').classList.add('hidden');
+        }
+
+        function selectSkin(key) {
+            if (userData.unlockedSkins.includes(key)) {
+                userData.currentSkin = key;
+                saveUserData();
+                openSkinSelectModal();
+                showToast(`✨ スキンを変更しました！`);
+            }
+        }
+
+        function getSecretCoins() {
+            userData.coins += 99999;
+            saveUserData();
+            showToast("🪲 カブトムシ発見！ 99,999コイン獲得！");
+        }
+
+        function startGame() {
+            document.getElementById('home-screen').classList.add('hidden');
+            document.getElementById('game-screen').classList.remove('hidden');
+            initGame(currentStage);
+        }
+
+        function returnToHome() {
+            document.getElementById('game-screen').classList.add('hidden');
+            document.getElementById('home-screen').classList.remove('hidden');
+            updateHomeUI();
+        }
+
+        function openGachaModal() {
+            document.getElementById('gacha-modal').classList.remove('hidden');
+            document.getElementById('gacha-modal-coins').innerText = userData.coins;
+        }
+
+        function closeGachaModal() {
+            document.getElementById('gacha-modal').classList.add('hidden');
+        }
+
+        function spinGacha() {
+            if (userData.coins < 50) {
+                showToast("コインが足りません！");
+                return;
+            }
+            userData.coins -= 50;
+            saveUserData();
+
+            const box = document.getElementById('gacha-display-box');
+            box.classList.add('gacha-anim');
+            setTimeout(() => box.classList.remove('gacha-anim'), 600);
+
+            const rand = Math.random() * 100;
+            let pulled = 'normal';
+            if (rand < 2) pulled = 'god';
+            else if (rand < 12) pulled = 'mage';
+            else if (rand < 25) pulled = 'hero';
+            else if (rand < 45) pulled = 'samurai';
+            else if (rand < 70) pulled = 'ninja';
+            else pulled = 'normal';
+
+            if (!userData.unlockedSkins.includes(pulled)) {
+                userData.unlockedSkins.push(pulled);
+            }
+            userData.currentSkin = pulled;
+
+            userData.achievements.gachaMaster = true;
+            if (pulled === 'god') {
+                userData.achievements.collector = true;
+            }
+            saveUserData();
+
+            let skinName = skinsData[pulled] ? skinsData[pulled].name : 'ノーマル';
+            let skinDesc = skinsData[pulled] ? skinsData[pulled].desc : '';
+            document.getElementById('gacha-result-text').innerHTML = `
+                <span class="text-xl font-black text-cyan-400">✨ ${skinName} をゲット！ ✨</span><br>
+                <span class="text-xs text-slate-300">${skinDesc}</span>
+            `;
+        }
+
+        function openAchievementModal() {
+            const list = document.getElementById('achievement-list');
+            list.innerHTML = '';
+            achievementsData.forEach(ach => {
+                const isCompleted = userData.achievements[ach.id];
+                const item = document.createElement('div');
+                item.className = `p-3 rounded-2xl border flex items-center justify-between ${isCompleted ? 'bg-amber-950/30 border-amber-500/50' : 'bg-slate-800/50 border-slate-700/60'}`;
+                item.innerHTML = `
+                    <div>
+                        <div class="font-bold text-sm ${isCompleted ? 'text-amber-300' : 'text-slate-300'}">${ach.title} ${isCompleted ? '✅' : '🔒'}</div>
+                        <div class="text-xs text-slate-400">${ach.desc}</div>
+                    </div>
+                    <div class="text-xs font-bold text-amber-400 bg-slate-900 px-2.5 py-1 rounded-xl border border-amber-500/30">🪙 +${ach.reward}</div>
+                `;
+                list.appendChild(item);
+            });
+            document.getElementById('achievement-modal').classList.remove('hidden');
+        }
+
+        function closeAchievementModal() {
+            document.getElementById('achievement-modal').classList.add('hidden');
+        }
+
+        function showToast(message) {
+            const toast = document.getElementById('toast');
+            toast.innerText = message;
+            toast.classList.remove('-translate-y-16', 'opacity-0');
+            toast.classList.add('translate-y-0', 'opacity-100');
+            setTimeout(() => {
+                toast.classList.remove('translate-y-0', 'opacity-100');
+                toast.classList.add('-translate-y-16', 'opacity-0');
+            }, 2500);
+        }
+
+        const stagesData = [
+            {
+                playerVal: 20,
+                towers: [
+                    [{ type: 'player', value: 20 }],
+                    [
+                        { type: 'enemy', name: 'ゾンビ', subType: 'zombie', value: 15 },
+                        { type: 'enemy', name: 'ゴブリン', subType: 'goblin', value: 35 },
+                        { type: 'enemy', name: 'スケルトン', subType: 'skeleton', value: 65 }
+                    ],
+                    [
+                        { type: 'weapon', op: '+', value: 10, name: '鉄の剣' },
+                        { type: 'enemy', name: 'リザードマン', subType: 'lizard', value: 90 },
+                        { type: 'item', op: 'x', value: 2, name: '強化書' },
+                        { type: 'enemy', name: 'オーク', subType: 'orc', value: 180 }
+                    ],
+                    [
+                        { type: 'weapon', op: '+', value: 25, name: '名剣' },
+                        { type: 'enemy', name: 'ヴァンパイア', subType: 'vampire', value: 320 },
+                        { type: 'potion', op: '-', value: 30, name: '罠ポーション' },
+                        { type: 'enemy', name: 'デーモン', subType: 'demon', value: 650 },
+                        { type: 'item', op: 'x', value: 3, name: '宝箱' }
+                    ]
+                ]
+            }
+        ];
+
+        function startYarirafiStage() {
+            document.getElementById('home-screen').classList.add('hidden');
+            document.getElementById('game-screen').classList.remove('hidden');
+            initYarirafiGame();
+        }
+
+        function initYarirafiGame() {
+            currentStage = 99; // 特別ステージID
+            player.value = 50;
+            
+            towers = [
+                [{ type: 'player', value: 50 }],
+                [
+                    { type: 'enemy', name: 'パリピギャル', subType: 'gal', value: 30 },
+                    { type: 'weapon', op: '+', value: 40, name: 'ネオンライト' },
+                    { type: 'enemy', name: 'TikToker', subType: 'tiktoker', value: 110 }
+                ],
+                [
+                    { type: 'item', op: 'x', value: 2, name: 'エナジードリンク' },
+                    { type: 'enemy', name: 'パリピポリス', subType: 'police', value: 280 },
+                    { type: 'weapon', op: '+', value: 150, name: 'VIPシャンパン' },
+                    { type: 'enemy', name: 'クラブDJ', subType: 'dj', value: 600 }
+                ],
+                [
+                    { type: 'item', op: 'x', value: 3, name: 'VIP限定パス' },
+                    { type: 'enemy', name: '👑 やりらふぃーキング', subType: 'yarirafiking', value: 2500 }
+                ]
+            ];
+
+            player.towerIndex = 0;
+            player.cellIndex = 0;
+
+            document.getElementById('stage-title').innerText = `🔥 やりらふぃー決戦！ 🔥`;
+            document.getElementById('game-coins').innerText = userData.coins;
+            renderBoard();
+            showToast("😎 パリピたちのクラブを制覇せよ！");
+        }
+
+        function getStageConfig(stageNum) {
+            if (stageNum === 99) {
+                return {
+                    playerVal: 50,
+                    towers: towers
+                };
+            }
+            if (stageNum <= stagesData.length) {
+                return JSON.parse(JSON.stringify(stagesData[stageNum - 1]));
+            }
+            let baseVal = 30 + (stageNum * 25);
+            const monsterList = [
+                { name: 'スケルトン', subType: 'skeleton' },
+                { name: 'リザードマン', subType: 'lizard' },
+                { name: 'ゾンビ', subType: 'zombie' },
+                { name: 'ゴブリン', subType: 'goblin' },
+                { name: 'オーク', subType: 'orc' },
+                { name: 'ヴァンパイア', subType: 'vampire' },
+                { name: 'デーモン', subType: 'demon' }
+            ];
+
+            return {
+                playerVal: baseVal,
+                towers: [
+                    [{ type: 'player', value: baseVal }],
+                    [
+                        { type: 'enemy', ...monsterList[0], value: baseVal + 30 },
+                        { type: 'enemy', ...monsterList[1], value: baseVal * 2 + 60 },
+                        { type: 'enemy', ...monsterList[2], value: baseVal * 4 }
+                    ],
+                    [
+                        { type: 'weapon', op: '+', value: stageNum * 20, name: '王者の剣' },
+                        { type: 'enemy', ...monsterList[3], value: baseVal * 7 },
+                        { type: 'item', op: 'x', value: 2, name: '宝箱' },
+                        { type: 'enemy', ...monsterList[4], value: baseVal * 12 }
+                    ],
+                    [
+                        { type: 'weapon', op: '+', value: stageNum * 45, name: '神剣' },
+                        { type: 'enemy', ...monsterList[5], value: baseVal * 19 },
+                        { type: 'enemy', ...monsterList[6], value: baseVal * 32 },
+                        { type: 'item', op: 'x', value: 3, name: '秘宝' }
+                    ]
+                ]
+            };
+        }
+
+        function renderStickFigure(type, subType, value) {
+            if (type === 'player') {
+                let skin = skinsData[userData.currentSkin] || skinsData.normal;
+                let skinColor = skin.color;
+                let skinStroke = skin.stroke;
+                let extraAccessory = '';
+                
+                if (userData.currentSkin === 'ninja') {
+                    extraAccessory = `<path d="M22 11 Q30 8 38 11" fill="none" stroke="#ef4444" stroke-width="2.5" stroke-linecap="round"/>`;
+                } else if (userData.currentSkin === 'samurai') {
+                    extraAccessory = `<path d="M20 12 Q30 15 40 12" fill="none" stroke="#dc2626" stroke-width="3" stroke-linecap="round"/>`;
+                } else if (userData.currentSkin === 'hero') {
+                    extraAccessory = `<polygon points="25,6 30,1 35,6" fill="#fbbf24"/>`;
+                } else if (userData.currentSkin === 'mage') {
+                    extraAccessory = `<polygon points="23,8 30,0 37,8" fill="#a855f7"/>`;
+                } else if (userData.currentSkin === 'god') {
+                    extraAccessory = `<circle cx="30" cy="4" r="2.5" fill="#facc15" class="animate-ping"/>`;
+                }
+
+                return `
+                    <div class="flex flex-col items-center justify-center relative animate-float">
+                        <div class="font-black text-xs sm:text-sm px-2.5 py-0.5 rounded-full shadow-md border mb-1" style="background-color: ${skinColor}; color: #0f172a; border-color: ${skinStroke}">
+                            ${value}
+                        </div>
+                        <svg class="w-12 h-14 sm:w-14 sm:h-16 drop-shadow-md" viewBox="0 0 60 70">
+                            <path d="M12 28 Q7 34 12 40 Q19 40 19 28 Z" fill="${skinColor}" stroke="${skinStroke}" stroke-width="2"/>
+                            <line x1="30" y1="18" x2="30" y2="46" stroke="#e2e8f0" stroke-width="3.5" stroke-linecap="round"/>
+                            <circle cx="30" cy="14" r="6" fill="${skinColor}" stroke="${skinStroke}" stroke-width="2"/>
+                            ${extraAccessory}
+                            <line x1="30" y1="20" x2="30" y2="44" stroke="${skinColor}" stroke-width="3" stroke-linecap="round"/>
+                            <line x1="30" y1="26" x2="16" y2="34" stroke="${skinColor}" stroke-width="3" stroke-linecap="round"/>
+                            <line x1="30" y1="26" x2="44" y2="34" stroke="${skinColor}" stroke-width="3" stroke-linecap="round"/>
+                            <line x1="30" y1="44" x2="20" y2="60" stroke="${skinColor}" stroke-width="3" stroke-linecap="round"/>
+                            <line x1="30" y1="44" x2="40" y2="60" stroke="${skinColor}" stroke-width="3" stroke-linecap="round"/>
+                        </svg>
+                    </div>
+                `;
+            } else if (type === 'enemy') {
+                if (subType === 'yarirafiking') {
+                    return `
+                        <div class="flex flex-col items-center justify-center relative animate-float">
+                            <svg class="w-14 h-16 sm:w-16 sm:h-20 drop-shadow-[0_0_15px_rgba(236,72,153,0.9)]" viewBox="0 0 60 70">
+                                <path d="M20 12 Q30 2 40 12 Q42 6 30 4 Q18 6 20 12 Z" fill="#facc15" stroke="#eab308" stroke-width="1.5"/>
+                                <circle cx="30" cy="14" r="6.5" fill="#fde047" stroke="#ca8a04" stroke-width="2"/>
+                                <rect x="23" y="12" width="6" height="4" rx="1" fill="#09090b" stroke="#f43f5e" stroke-width="1"/>
+                                <rect x="31" y="12" width="6" height="4" rx="1" fill="#09090b" stroke="#f43f5e" stroke-width="1"/>
+                                <line x1="29" y1="14" x2="31" y2="14" stroke="#09090b" stroke-width="1.5"/>
+                                <path d="M24 24 Q30 30 36 24" fill="none" stroke="#f59e0b" stroke-width="3" stroke-linecap="round"/>
+                                <circle cx="30" cy="28" r="2.5" fill="#fbbf24"/>
+                                <line x1="30" y1="20.5" x2="30" y2="44" stroke="#ec4899" stroke-width="4" stroke-linecap="round"/>
+                                <line x1="30" y1="26" x2="12" y2="18" stroke="#ec4899" stroke-width="3.5" stroke-linecap="round"/>
+                                <line x1="30" y1="26" x2="48" y2="18" stroke="#ec4899" stroke-width="3.5" stroke-linecap="round"/>
+                                <line x1="30" y1="44" x2="20" y2="60" stroke="#06b6d4" stroke-width="3.5" stroke-linecap="round"/>
+                                <line x1="30" y1="44" x2="40" y2="60" stroke="#06b6d4" stroke-width="3.5" stroke-linecap="round"/>
+                            </svg>
+                        </div>
+                    `;
+                } else if (subType === 'gal') {
+                    return `
+                        <div class="flex flex-col items-center justify-center relative animate-float">
+                            <svg class="w-12 h-14 sm:w-14 sm:h-16 drop-shadow-md" viewBox="0 0 60 70">
+                                <path d="M18 10 Q30 4 42 10 L44 22 L16 22 Z" fill="#f472b6" opacity="0.9"/>
+                                <circle cx="30" cy="14" r="6" fill="#fbcfe8" stroke="#ec4899" stroke-width="2"/>
+                                <line x1="30" y1="20" x2="30" y2="44" stroke="#f43f5e" stroke-width="3" stroke-linecap="round"/>
+                                <line x1="30" y1="26" x2="14" y2="20" stroke="#f43f5e" stroke-width="3" stroke-linecap="round"/>
+                                <line x1="30" y1="26" x2="46" y2="20" stroke="#f43f5e" stroke-width="3" stroke-linecap="round"/>
+                                <line x1="30" y1="44" x2="21" y2="60" stroke="#38bdf8" stroke-width="3" stroke-linecap="round"/>
+                                <line x1="30" y1="44" x2="39" y2="60" stroke="#38bdf8" stroke-width="3" stroke-linecap="round"/>
+                            </svg>
+                        </div>
+                    `;
+                } else if (subType === 'tiktoker' || subType === 'police' || subType === 'dj') {
+                    return `
+                        <div class="flex flex-col items-center justify-center relative animate-float">
+                            <svg class="w-12 h-14 sm:w-14 sm:h-16 drop-shadow-md" viewBox="0 0 60 70">
+                                <circle cx="30" cy="14" r="6" fill="#38bdf8" stroke="#0284c7" stroke-width="2"/>
+                                <path d="M22 14 C22 6 38 6 38 14" fill="none" stroke="#a855f7" stroke-width="3"/>
+                                <rect x="21" y="11" width="4" height="6" fill="#a855f7" rx="1"/>
+                                <rect x="35" y="11" width="4" height="6" fill="#a855f7" rx="1"/>
+                                <line x1="30" y1="20" x2="30" y2="44" stroke="#38bdf8" stroke-width="3.5" stroke-linecap="round"/>
+                                <line x1="30" y1="26" x2="15" y2="34" stroke="#38bdf8" stroke-width="3" stroke-linecap="round"/>
+                                <line x1="30" y1="26" x2="45" y2="34" stroke="#38bdf8" stroke-width="3" stroke-linecap="round"/>
+                                <line x1="30" y1="44" x2="20" y2="60" stroke="#a855f7" stroke-width="3" stroke-linecap="round"/>
+                                <line x1="30" y1="44" x2="40" y2="60" stroke="#a855f7" stroke-width="3" stroke-linecap="round"/>
+                            </svg>
+                        </div>
+                    `;
+                } else if (subType === 'skeleton') {
+                    return `
+                        <div class="flex flex-col items-center justify-center relative animate-float">
+                            <svg class="w-12 h-14 sm:w-14 sm:h-16 drop-shadow-md" viewBox="0 0 60 70">
+                                <!-- 弓 (背後・手に保持) -->
+                                <path d="M 42 16 Q 52 32 42 48" fill="none" stroke="#854d0e" stroke-width="2.5" stroke-linecap="round"/>
+                                <line x1="42" y1="16" x2="42" y2="48" stroke="#e2e8f0" stroke-width="1" stroke-dasharray="2,2"/>
+                                <!-- 骸骨の頭 (眼のくぼみ) -->
+                                <circle cx="30" cy="14" r="6" fill="#f8fafc" stroke="#64748b" stroke-width="2"/>
+                                <circle cx="28" cy="13" r="1.2" fill="#0f172a"/>
+                                <circle cx="32" cy="13" r="1.2" fill="#0f172a"/>
+                                <!-- 脊髄 -->
+                                <line x1="30" y1="20" x2="30" y2="44" stroke="#cbd5e1" stroke-width="3" stroke-linecap="round"/>
+                                <!-- あばら骨 -->
+                                <path d="M 23 25 Q 30 22 37 25" fill="none" stroke="#94a3b8" stroke-width="2" stroke-linecap="round"/>
+                                <path d="M 24 30 Q 30 27 36 30" fill="none" stroke="#94a3b8" stroke-width="2" stroke-linecap="round"/>
+                                <path d="M 25 35 Q 30 32 35 35" fill="none" stroke="#94a3b8" stroke-width="2" stroke-linecap="round"/>
+                                <!-- 骨の腕 (弓を構えるポーズ) -->
+                                <line x1="30" y1="25" x2="16" y2="30" stroke="#cbd5e1" stroke-width="2" stroke-linecap="round"/>
+                                <line x1="30" y1="25" x2="42" y2="32" stroke="#cbd5e1" stroke-width="2" stroke-linecap="round"/>
+                                <!-- 骨の脚 -->
+                                <line x1="30" y1="44" x2="20" y2="60" stroke="#cbd5e1" stroke-width="2.5" stroke-linecap="round"/>
+                                <line x1="30" y1="44" x2="40" y2="60" stroke="#cbd5e1" stroke-width="2.5" stroke-linecap="round"/>
+                            </svg>
+                        </div>
+                    `;
+                } else if (subType === 'vampire') {
+                    return `
+                        <div class="flex flex-col items-center justify-center relative animate-float">
+                            <svg class="w-12 h-14 sm:w-14 sm:h-16 drop-shadow-md" viewBox="0 0 60 70">
+                                <!-- 黒と赤のマント -->
+                                <path d="M 18 24 L 8 58 Q 30 64 52 58 L 42 24 Z" fill="#4c0519" stroke="#881337" stroke-width="1.5"/>
+                                <path d="M 22 24 L 14 54 Q 30 58 46 54 L 38 24 Z" fill="#09090b"/>
+                                <!-- ヴァンパイアの顔と髪 -->
+                                <path d="M 23 10 Q 30 4 37 10 L 37 15 L 23 15 Z" fill="#1e1b4b"/>
+                                <circle cx="30" cy="14" r="6" fill="#f3e8ff" stroke="#6b21a8" stroke-width="1.5"/>
+                                <!-- 赤い目 -->
+                                <circle cx="28" cy="13" r="1" fill="#dc2626"/>
+                                <circle cx="32" cy="13" r="1" fill="#dc2626"/>
+                                <!-- 鋭い牙 -->
+                                <polygon points="28.5,17 29.5,17 29,19.5" fill="#ffffff"/>
+                                <polygon points="30.5,17 31.5,17 31,19.5" fill="#ffffff"/>
+                                <!-- 胴体とスーツ -->
+                                <line x1="30" y1="20" x2="30" y2="44" stroke="#a855f7" stroke-width="3" stroke-linecap="round"/>
+                                <!-- 赤いリボンタイ -->
+                                <polygon points="28,21 32,21 30,24" fill="#e11d48"/>
+                                <line x1="30" y1="26" x2="16" y2="34" stroke="#a855f7" stroke-width="2.5" stroke-linecap="round"/>
+                                <line x1="30" y1="26" x2="44" y2="34" stroke="#a855f7" stroke-width="2.5" stroke-linecap="round"/>
+                                <line x1="30" y1="44" x2="20" y2="60" stroke="#3b0764" stroke-width="3" stroke-linecap="round"/>
+                                <line x1="30" y1="44" x2="40" y2="60" stroke="#3b0764" stroke-width="3" stroke-linecap="round"/>
+                            </svg>
+                        </div>
+                    `;
+                } else if (subType === 'demon') {
+                    return `
+                        <div class="flex flex-col items-center justify-center relative animate-float">
+                            <svg class="w-12 h-14 sm:w-14 sm:h-16 drop-shadow-[0_0_10px_rgba(220,38,38,0.7)]" viewBox="0 0 60 70">
+                                <!-- 悪魔の大きな翼 -->
+                                <path d="M 28 25 Q 10 10 4 28 Q 14 30 28 32 Z" fill="#450a0a" stroke="#dc2626" stroke-width="1.5"/>
+                                <path d="M 32 25 Q 50 10 56 28 Q 46 30 32 32 Z" fill="#450a0a" stroke="#dc2626" stroke-width="1.5"/>
+                                <!-- 悪魔の角 -->
+                                <path d="M 25 10 Q 22 2 18 4 Q 22 10 25 12 Z" fill="#dc2626"/>
+                                <path d="M 35 10 Q 38 2 42 4 Q 38 10 35 12 Z" fill="#dc2626"/>
+                                <!-- 頭部 -->
+                                <circle cx="30" cy="15" r="6.5" fill="#7f1d1d" stroke="#ef4444" stroke-width="1.5"/>
+                                <!-- 黄光の目 -->
+                                <circle cx="28" cy="14" r="1.2" fill="#fef08a"/>
+                                <circle cx="32" cy="14" r="1.2" fill="#fef08a"/>
+                                <!-- 胴体・矢印型の尻尾 -->
+                                <line x1="30" y1="22" x2="30" y2="44" stroke="#991b1b" stroke-width="4" stroke-linecap="round"/>
+                                <path d="M 30 40 Q 42 42 46 50 T 50 56" fill="none" stroke="#dc2626" stroke-width="2"/>
+                                <polygon points="50,53 54,58 47,58" fill="#dc2626"/>
+                                <!-- 手足 -->
+                                <line x1="30" y1="26" x2="14" y2="34" stroke="#dc2626" stroke-width="3" stroke-linecap="round"/>
+                                <line x1="30" y1="26" x2="46" y2="34" stroke="#dc2626" stroke-width="3" stroke-linecap="round"/>
+                                <line x1="30" y1="44" x2="20" y2="60" stroke="#7f1d1d" stroke-width="3.5" stroke-linecap="round"/>
+                                <line x1="30" y1="44" x2="40" y2="60" stroke="#7f1d1d" stroke-width="3.5" stroke-linecap="round"/>
+                            </svg>
+                        </div>
+                    `;
+                } else if (subType === 'lizard') {
+                    return `
+                        <div class="flex flex-col items-center justify-center relative animate-float">
+                            <svg class="w-12 h-14 sm:w-14 sm:h-16 drop-shadow-md" viewBox="0 0 60 70">
+                                <!-- リザードマンの尻尾 -->
+                                <path d="M 30 44 Q 18 48 10 58" fill="none" stroke="#15803d" stroke-width="4" stroke-linecap="round"/>
+                                <!-- トカゲの頭部と背ビレ -->
+                                <path d="M 24 14 Q 30 8 38 12 L 36 18 Z" fill="#166534"/>
+                                <circle cx="30" cy="14" r="6" fill="#22c55e" stroke="#14532d" stroke-width="1.5"/>
+                                <!-- 黄色い縦長の目 -->
+                                <ellipse cx="32" cy="13" rx="1.2" ry="2" fill="#facc15"/>
+                                <!-- 胴体 -->
+                                <line x1="30" y1="20" x2="30" y2="44" stroke="#15803d" stroke-width="4" stroke-linecap="round"/>
+                                <line x1="30" y1="26" x2="16" y2="34" stroke="#22c55e" stroke-width="3" stroke-linecap="round"/>
+                                <!-- 手に槍を保持 -->
+                                <line x1="12" y1="20" x2="12" y2="52" stroke="#78350f" stroke-width="2"/>
+                                <polygon points="12,14 9,21 15,21" fill="#94a3b8"/>
+                                <line x1="30" y1="26" x2="44" y2="34" stroke="#22c55e" stroke-width="3" stroke-linecap="round"/>
+                                <line x1="30" y1="44" x2="20" y2="60" stroke="#166534" stroke-width="3.5" stroke-linecap="round"/>
+                                <line x1="30" y1="44" x2="40" y2="60" stroke="#166534" stroke-width="3.5" stroke-linecap="round"/>
+                            </svg>
+                        </div>
+                    `;
+                } else if (subType === 'orc') {
+                    return `
+                        <div class="flex flex-col items-center justify-center relative animate-float">
+                            <svg class="w-12 h-14 sm:w-14 sm:h-16 drop-shadow-md" viewBox="0 0 60 70">
+                                <!-- オークの頭部と下からの大きな牙 -->
+                                <circle cx="30" cy="14" r="7.5" fill="#65a30d" stroke="#3f6212" stroke-width="2"/>
+                                <polygon points="26,17 28,17 27,13" fill="#ffffff"/>
+                                <polygon points="32,17 34,17 33,13" fill="#ffffff"/>
+                                <!-- 筋肉質な太い胴体 -->
+                                <line x1="30" y1="21" x2="30" y2="44" stroke="#4d7c0f" stroke-width="6" stroke-linecap="round"/>
+                                <!-- 棍棒 -->
+                                <path d="M 44 20 L 50 38" stroke="#78350f" stroke-width="4" stroke-linecap="round"/>
+                                <line x1="30" y1="26" x2="14" y2="34" stroke="#65a30d" stroke-width="4" stroke-linecap="round"/>
+                                <line x1="30" y1="26" x2="44" y2="32" stroke="#65a30d" stroke-width="4" stroke-linecap="round"/>
+                                <line x1="30" y1="44" x2="18" y2="60" stroke="#3f6212" stroke-width="4.5" stroke-linecap="round"/>
+                                <line x1="30" y1="44" x2="42" y2="60" stroke="#3f6212" stroke-width="4.5" stroke-linecap="round"/>
+                            </svg>
+                        </div>
+                    `;
+                } else if (subType === 'goblin') {
+                    return `
+                        <div class="flex flex-col items-center justify-center relative animate-float">
+                            <svg class="w-12 h-14 sm:w-14 sm:h-16 drop-shadow-md" viewBox="0 0 60 70">
+                                <!-- 尖った大きな耳 -->
+                                <polygon points="24,14 14,10 22,18" fill="#84cc16"/>
+                                <polygon points="36,14 46,10 38,18" fill="#84cc16"/>
+                                <!-- 頭部 -->
+                                <circle cx="30" cy="16" r="5.5" fill="#84cc16" stroke="#4d7c0f" stroke-width="1.5"/>
+                                <!-- 胴体 (小柄) -->
+                                <line x1="30" y1="21" x2="30" y2="40" stroke="#65a30d" stroke-width="3" stroke-linecap="round"/>
+                                <line x1="30" y1="26" x2="16" y2="32" stroke="#84cc16" stroke-width="2.5" stroke-linecap="round"/>
+                                <line x1="30" y1="26" x2="44" y2="32" stroke="#84cc16" stroke-width="2.5" stroke-linecap="round"/>
+                                <line x1="30" y1="40" x2="22" y2="56" stroke="#4d7c0f" stroke-width="2.5" stroke-linecap="round"/>
+                                <line x1="30" y1="40" x2="38" y2="56" stroke="#4d7c0f" stroke-width="2.5" stroke-linecap="round"/>
+                            </svg>
+                        </div>
+                    `;
+                } else if (subType === 'zombie') {
+                    return `
+                        <div class="flex flex-col items-center justify-center relative animate-float">
+                            <svg class="w-12 h-14 sm:w-14 sm:h-16 drop-shadow-md" viewBox="0 0 60 70">
+                                <!-- ゾンビ (傷・傾いた頭・引きずる手) -->
+                                <circle cx="28" cy="15" r="6" fill="#065f46" stroke="#022c22" stroke-width="1.5"/>
+                                <!-- 片目 X印 -->
+                                <line x1="25" y1="13" x2="29" y2="17" stroke="#dc2626" stroke-width="1.5"/>
+                                <line x1="29" y1="13" x2="25" y2="17" stroke="#dc2626" stroke-width="1.5"/>
+                                <circle cx="31" cy="14" r="1" fill="#fef08a"/>
+                                <line x1="29" y1="21" x2="30" y2="44" stroke="#047857" stroke-width="3.5" stroke-linecap="round"/>
+                                <!-- 前に垂れ下がった両手 -->
+                                <path d="M 29 26 L 14 32 L 10 40" fill="none" stroke="#10b981" stroke-width="2.5" stroke-linecap="round"/>
+                                <path d="M 29 26 L 18 34 L 16 42" fill="none" stroke="#10b981" stroke-width="2.5" stroke-linecap="round"/>
+                                <line x1="30" y1="44" x2="18" y2="60" stroke="#022c22" stroke-width="3" stroke-linecap="round"/>
+                                <line x1="30" y1="44" x2="36" y2="59" stroke="#022c22" stroke-width="3" stroke-linecap="round"/>
+                            </svg>
+                        </div>
+                    `;
+                } else {
+                    return `
+                        <div class="flex flex-col items-center justify-center relative animate-float">
+                            <svg class="w-12 h-14 sm:w-14 sm:h-16 drop-shadow-md" viewBox="0 0 60 70">
+                                <circle cx="30" cy="14" r="6" fill="#4ade80" stroke="#16a34a" stroke-width="2"/>
+                                <line x1="30" y1="20" x2="30" y2="44" stroke="#4ade80" stroke-width="3" stroke-linecap="round"/>
+                                <line x1="30" y1="26" x2="16" y2="34" stroke="#4ade80" stroke-width="3" stroke-linecap="round"/>
+                                <line x1="30" y1="26" x2="44" y2="34" stroke="#4ade80" stroke-width="3" stroke-linecap="round"/>
+                                <line x1="30" y1="44" x2="20" y2="60" stroke="#4ade80" stroke-width="3" stroke-linecap="round"/>
+                                <line x1="30" y1="44" x2="40" y2="60" stroke="#4ade80" stroke-width="3" stroke-linecap="round"/>
+                            </svg>
+                        </div>
+                    `;
+                }
+            }
+            return '';
+        }
+
+        function renderItemFigure(type, name, value) {
+            if (type === 'weapon') {
+                return `
+                    <div class="flex flex-col items-center justify-center relative animate-float">
+                        <svg class="w-10 h-12 sm:w-12 sm:h-14 drop-shadow-[0_0_8px_rgba(245,158,11,0.6)]" viewBox="0 0 60 70">
+                            <!-- 剣のイラスト -->
+                            <path d="M30 6 L36 12 L33 46 L30 52 L27 46 L24 12 Z" fill="#e2e8f0" stroke="#94a3b8" stroke-width="1.5"/>
+                            <rect x="21" y="44" width="18" height="4" rx="2" fill="#d97706" stroke="#b45309" stroke-width="1"/>
+                            <line x1="30" y1="48" x2="30" y2="60" stroke="#78350f" stroke-width="4" stroke-linecap="round"/>
+                            <circle cx="30" cy="61" r="3" fill="#b45309"/>
+                            <!-- キラリ効果 -->
+                            <polygon points="32,15 34,20 38,22 34,24 32,29 30,24 26,22 30,20" fill="#ffffff" opacity="0.8"/>
+                        </svg>
+                    </div>
+                `;
+            } else if (type === 'item') {
+                return `
+                    <div class="flex flex-col items-center justify-center relative animate-float">
+                        <svg class="w-10 h-12 sm:w-12 sm:h-14 drop-shadow-[0_0_8px_rgba(234,179,8,0.7)]" viewBox="0 0 60 70">
+                            <!-- 宝箱・アイテムのイラスト -->
+                            <rect x="15" y="32" width="30" height="24" rx="4" fill="#b45309" stroke="#78350f" stroke-width="2"/>
+                            <path d="M15 32 Q30 18 45 32 Z" fill="#d97706" stroke="#92400e" stroke-width="2"/>
+                            <rect x="26" y="38" width="8" height="10" rx="2" fill="#facc15" stroke="#ca8a04" stroke-width="1.5"/>
+                            <circle cx="30" cy="43" r="1.5" fill="#78350f"/>
+                            <!-- 星のエフェクト -->
+                            <polygon points="30,8 32,14 38,16 32,18 30,24 28,18 22,16 28,14" fill="#fde047" class="animate-spin" style="transform-origin: center; animation-duration: 4s;"/>
+                        </svg>
+                    </div>
+                `;
+            } else if (type === 'potion') {
+                return `
+                    <div class="flex flex-col items-center justify-center relative animate-float">
+                        <svg class="w-10 h-12 sm:w-12 sm:h-14 drop-shadow-[0_0_8px_rgba(239,68,68,0.6)]" viewBox="0 0 60 70">
+                            <!-- ポーションフラスコのイラスト -->
+                            <rect x="25" y="14" width="10" height="8" fill="#cbd5e1" stroke="#64748b" stroke-width="1.5"/>
+                            <path d="M22 22 L20 28 C16 38 18 52 30 52 C42 52 44 38 40 28 L38 22 Z" fill="#f43f5e" fill-opacity="0.85" stroke="#9f1239" stroke-width="2"/>
+                            <!-- 液体の中身ハイライト -->
+                            <path d="M22 38 C26 36 34 36 38 38 C41 44 38 50 30 50 C22 50 19 44 22 38 Z" fill="#fb7185" opacity="0.6"/>
+                            <!-- ボトルガラスのツヤ -->
+                            <path d="M23 32 Q25 42 27 48" fill="none" stroke="#ffffff" stroke-width="2.5" stroke-linecap="round" opacity="0.7"/>
+                        </svg>
+                    </div>
+                `;
+            }
+            return `<div class="text-2xl sm:text-3xl animate-bounce">⭐</div>`;
+        }
+
+        function initGame(stageNum) {
+            currentStage = stageNum;
+            const config = getStageConfig(stageNum);
+            player.value = config.playerVal;
+            towers = config.towers;
+            
+            player.towerIndex = 0;
+            player.cellIndex = 0;
+
+            document.getElementById('stage-title').innerText = `ステージ ${currentStage}`;
+            document.getElementById('game-coins').innerText = userData.coins;
+            renderBoard();
+        }
+
+        function renderBoard() {
+            const wrapper = document.getElementById('towers-wrapper');
+            wrapper.innerHTML = '';
+
+            towers.forEach((tower, tIndex) => {
+                const isPlayerTower = (tIndex === player.towerIndex);
+                
+                const towerDiv = document.createElement('div');
+                towerDiv.className = `flex flex-col gap-2 items-center p-2 rounded-2xl bg-transparent`;
+                
+                for (let cIndex = tower.length - 1; cIndex >= 0; cIndex--) {
+                    const cell = tower[cIndex];
+                    const isCurrentPosition = (isPlayerTower && player.cellIndex === cIndex);
+
+                    const cellBox = document.createElement('div');
+                    cellBox.className = `tower-block w-24 sm:w-28 h-20 sm:h-24 rounded-xl flex flex-col items-center justify-center relative cursor-pointer border ${getCellStyle(cell, isCurrentPosition)}`;
+                    
+                    if (cell.type === 'player') {
+                        cellBox.innerHTML = renderStickFigure('player', '', player.value);
+                        cellBox.style.background = 'linear-gradient(135deg, rgba(14,165,233,0.25), rgba(30,58,138,0.5))';
+                    } else if (cell.type === 'enemy') {
+                        cellBox.innerHTML = `
+                            <div class="absolute top-1 text-xs font-black px-2 py-0.5 rounded-md bg-rose-900/90 text-rose-200 border border-rose-500/40 shadow">
+                                ${cell.value}
+                            </div>
+                            ${renderStickFigure('enemy', cell.subType, cell.value)}
+                            <div class="absolute bottom-1 text-[10px] font-bold text-slate-300 bg-slate-950/80 px-1.5 rounded">
+                                ${cell.name}
+                            </div>
+                        `;
+                        cellBox.style.background = 'linear-gradient(135deg, rgba(225,29,72,0.18), rgba(15,23,42,0.85))';
+                    } else if (cell.type === 'weapon' || cell.type === 'item' || cell.type === 'potion') {
+                        cellBox.innerHTML = `
+                            <div class="absolute top-1 text-xs font-black px-2 py-0.5 rounded-md bg-amber-900/90 text-amber-200 border border-amber-500/40 shadow">
+                                ${cell.op}${cell.value}
+                            </div>
+                            ${renderItemFigure(cell.type, cell.name, cell.value)}
+                            <div class="absolute bottom-1 text-[10px] font-bold text-slate-300 bg-slate-950/80 px-1.5 rounded">
+                                ${cell.name}
+                            </div>
+                        `;
+                        cellBox.style.background = 'linear-gradient(135deg, rgba(245,158,11,0.18), rgba(15,23,42,0.85))';
+                    } else {
+                        cellBox.style.background = 'rgba(15, 23, 42, 0.4)';
+                    }
+
+                    cellBox.onclick = () => handleCellClick(tIndex, cIndex);
+                    towerDiv.appendChild(cellBox);
+                }
+
+                wrapper.appendChild(towerDiv);
+            });
+
+            checkStageClear();
+        }
+
+        function getCellStyle(cell, isCurrent) {
+            if (isCurrent) return 'border-cyan-400 ring-2 ring-cyan-400 shadow-cyan-500/50';
+            if (cell.type === 'enemy') {
+                return player.value > cell.value ? 'border-rose-500/60 hover:border-emerald-400' : 'border-rose-950 opacity-95';
+            }
+            return 'border-amber-500/60 hover:border-amber-400';
+        }
+
+        function handleCellClick(tIndex, cIndex) {
+            const clickedCell = towers[tIndex][cIndex];
+            if (clickedCell.type === 'player' || clickedCell.type === 'empty') return;
+
+            if (clickedCell.type === 'enemy') {
+                if (player.value > clickedCell.value) {
+                    player.value += clickedCell.value;
+                    towers[tIndex][cIndex] = { type: 'empty' };
+                    updatePlayerPosition(tIndex, cIndex);
+                    
+                    userData.coins += 10;
+                    document.getElementById('game-coins').innerText = userData.coins;
+                    saveUserData();
+
+                    if (!userData.achievements.firstWin) {
+                        userData.achievements.firstWin = true;
+                        userData.coins += 50;
+                        saveUserData();
+                    }
+
+                    showToast(`⚔️ ${clickedCell.name}討伐成功！ パワー+${clickedCell.value} 🪙+10`);
+                } else {
+                    showToast(`❌ 数字が足りないよ！(必要: ${clickedCell.value}超 / 現在: ${player.value})`);
+                    setTimeout(() => {
+                        document.getElementById('gameover-modal').classList.remove('hidden');
+                    }, 400);
+                    return;
+                }
+            } else if (clickedCell.type === 'weapon' || clickedCell.type === 'item') {
+                if (clickedCell.op === '+') {
+                    player.value += clickedCell.value;
+                    showToast(`🗡️ ${clickedCell.name}を拾った！ +${clickedCell.value}`);
+                } else if (clickedCell.op === 'x') {
+                    player.value *= clickedCell.value;
+                    showToast(`✨ パワー倍増！ x${clickedCell.value}`);
+                }
+                towers[tIndex][cIndex] = { type: 'empty' };
+                updatePlayerPosition(tIndex, cIndex);
+            } else if (clickedCell.type === 'potion') {
+                player.value -= clickedCell.value;
+                if (player.value < 1) player.value = 1;
+                towers[tIndex][cIndex] = { type: 'empty' };
+                updatePlayerPosition(tIndex, cIndex);
+                showToast(`🧪 罠ポーションの効果発動…`);
+            }
+
+            renderBoard();
+        }
+
+        function updatePlayerPosition(tIndex, cIndex) {
+            towers[player.towerIndex][player.cellIndex] = { type: 'empty' };
+            player.towerIndex = tIndex;
+            player.cellIndex = cIndex;
+            towers[tIndex][cIndex] = { type: 'player', value: player.value };
+        }
+
+        function checkStageClear() {
+            let enemiesLeft = 0;
+            towers.forEach(tower => {
+                tower.forEach(cell => {
+                    if (cell.type === 'enemy') enemiesLeft++;
+                });
+            });
+
+            if (enemiesLeft === 0) {
+                if (currentStage === 5 && !userData.achievements.stage5) {
+                    userData.achievements.stage5 = true;
+                    userData.coins += 100;
+                }
+                userData.coins += 30;
+                saveUserData();
+
+                setTimeout(() => {
+                    document.getElementById('clear-modal').classList.remove('hidden');
+                }, 300);
+            }
+        }
+
+        function resetGame() {
+            initGame(currentStage);
+            document.getElementById('clear-modal').classList.add('hidden');
+            document.getElementById('gameover-modal').classList.add('hidden');
+        }
+
+        function restartFromBeginning() {
+            document.getElementById('gameover-modal').classList.add('hidden');
+            initGame(currentStage);
+        }
+
+        function nextStage() {
+            document.getElementById('clear-modal').classList.add('hidden');
+            currentStage++;
+            initGame(currentStage);
+        }
+
+        function openStageSelect() {
+            const list = document.getElementById('stage-list');
+            list.innerHTML = '';
+            for (let i = 1; i <= maxStages; i++) {
+                const btn = document.createElement('button');
+                btn.className = `p-3 rounded-xl font-bold border transition ${i === currentStage ? 'bg-cyan-600 border-cyan-400 text-white' : 'bg-slate-800 border-slate-700 hover:bg-slate-700 text-slate-300'}`;
+                btn.innerText = `ステージ ${i}`;
+                btn.onclick = () => {
+                    initGame(i);
+                    closeStageSelect();
+                };
+                list.appendChild(btn);
+            }
+            document.getElementById('stage-modal').classList.remove('hidden');
+        }
+
+        function closeStageSelect() {
+            document.getElementById('stage-modal').classList.add('hidden');
+        }
+
+        window.onload = () => {
+            loadUserData();
+        };
+    </script>
+</body>
+</html>
